@@ -150,7 +150,7 @@ begin
   LObjectType := Self.GetClassType;
   LObjectItem := LObjectType.AsInstance.MetaclassType.Create;
 
-   if Self.IsList then
+  if Self.IsList then
     LObjectItem.InvokeMethod('create', [True]);
 
   Result := LObjectItem;

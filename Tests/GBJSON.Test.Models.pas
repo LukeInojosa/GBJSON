@@ -44,6 +44,7 @@ type
     FQualities: TArray<string>;
     FDocument_Number: string;
   public
+    function Clear: TPerson;
     constructor Create;
     destructor Destroy; override;
     class function CreatePerson: TPerson;
@@ -78,6 +79,17 @@ type
 implementation
 
 { TPerson }
+
+function TPerson.Clear: TPerson;
+begin
+  Self.FAddress.Free;
+  Self.FPhones.Free;
+  Self.FNotes.Free;
+  Self.FAddress := nil;
+  Self.FPhones := nil;
+  Self.FNotes := nil;
+  Result := Self;
+end;
 
 constructor TPerson.create;
 begin

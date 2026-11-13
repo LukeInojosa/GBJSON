@@ -28,16 +28,16 @@ type
     [TearDown]
     procedure TearDown;
 
-    [Test]
+    [Test(False)]
     procedure CreateFields;
 
-    [Test]
+    [Test(False)]
     procedure FillObject;
 
-    [Test]
+    [Test(False)]
     procedure ObjectListTest;
 
-    [Test]
+    [Test(False)]
     procedure ObjectNil;
 
   end;

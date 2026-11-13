@@ -119,6 +119,12 @@ type
 
     [Test]
     procedure JSONNameAttribute;
+
+    [Test]
+    procedure CriacaoDeSubclasses;
+
+    [Test]
+    procedure CriacaoDeSubClassesDentroDeArrayJSON;
   end;
 
 implementation
@@ -191,6 +197,102 @@ procedure TGBJSONTestSerializePerson.CreatePerson;
 begin
   FreeAndNil(FPerson);
   FPerson := FSerialize.JsonObjectToObject(FJSONObject);
+end;
+
+procedure TGBJSONTestSerializePerson.CriacaoDeSubclasses;
+begin
+  // dado que um objeto possui sub objetos
+  // não inicializados
+  FPerson := TPerson.Create.Clear;
+
+  // dado um json que representa este objeto
+  FreeAndNil(Self.FJSONObject);
+
+  Self.FJSONObject := TJSONObject.Create
+  .AddPair(
+    'address',
+    TJSONObject.Create
+      .AddPair('idAddress', '2')
+      .AddPair('street', 'Test')
+  );
+
+  try
+    // quando realizar a serialização do json
+    FPerson.FromJSONObject(FJSONObject);
+
+    // o objeto deve ter apenas inicializado
+    // os subobjetos que estavam preenchidos no json
+    Assert.IsTrue(Assigned(FPerson.Address));
+    Assert.IsFalse(Assigned(FPerson.Phones));
+    Assert.IsFalse(Assigned(FPerson.Notes));
+
+    // os valores dos subobjetos inicializados
+    // devem ser iguais aos do json
+    Assert.AreEqual(
+      TJSONObject(Self.FJSONObject.Values['address']).Values['street'].Value,
+      FPerson.Address.Street);
+
+    Assert.AreEqual(
+      TJSONObject(Self.FJSONObject.Values['address']).Values['idAddress'].Value,
+      FPerson.Address.idAddress);
+  finally
+    FreeAndNil(FJSONObject);
+    FreeAndNil(FPerson);
+  end;
+end;
+
+procedure TGBJSONTestSerializePerson.CriacaoDeSubClassesDentroDeArrayJSON;
+begin
+  // dado que um objeto possui sub objetos
+  // não inicializados
+  FPerson := TPerson.Create.Clear;
+
+  // dado um json que representa este objeto
+  FreeAndNil(Self.FJSONObject);
+
+  // ao preencher o json com um array que possui
+  // um objeto dentro
+  Self.FJSONObject := TJSONObject.Create
+  .AddPair(
+      'phones',
+      TJSONArray.Create.Add(
+        TJSONObject.Create
+          .AddPair('idTel', TJSONNumber.Create(1.0))
+          .AddPair('number', '(81) 99859-3719')
+      )
+  );
+
+  try
+    // quando realizar a serialização do json
+    FPerson.FromJSONObject(FJSONObject);
+
+    // O Array deve ter sido inicializado
+    Assert.IsTrue(Assigned(FPerson.Phones));
+
+    // O valor dentro do array json deve ter sido
+    // inserido no subobjeto
+    Assert.IsTrue(FPerson.Phones.First <> nil);
+
+    // os valores dos subobjetos inicializados
+    // devem ser iguais aos do json
+    Assert.AreEqual(
+      Self.FJSONObject
+        .ValueAsJSONArray('phones')
+        .ItemAsJSONObject(0)
+        .Values['number'].Value,
+      FPerson.Phones.First.Number);
+
+    Assert.AreEqual(
+      Self.FJSONObject
+        .ValueAsJSONArray('phones')
+        .ItemAsJSONObject(0)
+        .Values['idTel'].Value
+        .ToDouble,
+      FPerson.Phones.First.IdTel);
+  finally
+    FreeAndNil(FJSONObject);
+    FreeAndNil(FPerson);
+  end;
 end;
 
 procedure TGBJSONTestSerializePerson.DateTimeValue;

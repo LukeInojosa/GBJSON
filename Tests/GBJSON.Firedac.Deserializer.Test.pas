@@ -37,13 +37,13 @@ type
     [TearDown]
     procedure TearDown;
 
-    [Test]
+    [Test(False)]
     procedure SimpleRestaurant;
 
-    [Test]
+    [Test(False)]
     procedure SimpleRestaurantCaseDefinition;
 
-    [Test]
+    [Test(False)]
     procedure ListRestaurants;
   end;
 

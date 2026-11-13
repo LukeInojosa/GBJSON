@@ -129,6 +129,13 @@ type
 
     [Test]
     procedure JSONNameAttribute;
+
+    [Test]
+    /// <summary>
+    ///  Dado um objeto, quando fizer a conversão para JSON,
+    ///  Os Valores setados como a ignorar tem de ser ignorados
+    /// </summary>
+    procedure ObjectToJsonIgnoreValues;
   end;
 
 implementation
@@ -437,6 +444,32 @@ begin
   FPerson.Address := nil;
   FJSONObject := GetJsonObject(FPerson);
   Assert.IsNull(FJSONObject.GetValue('Address'));
+end;
+
+procedure TGBJSONTestDeserializePerson.ObjectToJsonIgnoreValues;
+var
+  Str : String;
+begin
+  FreeAndNil(FPerson);
+  FreeAndNil(FJSONObject);
+
+  // dado um objeto Person
+  FPerson :=  TPerson.Create.Clear;
+
+  // com um subconjunto das suas propriedades preenchidas
+  FPerson.IdPerson := 1.0;
+
+  // quando converter o objeto para json
+  FJSONObject := FPerson.ToJSONObject;
+
+  Str := FJSONObject.ToString;
+  // apenas este subconjunto deve estar preenchido
+  Assert.IsNotNull(FJSONObject.Values['IdPerson']);
+  Assert.IsNull(FJSONObject.Values['Qualities']);
+  Assert.IsNull(FJSONObject.Values['Name']);
+  Assert.IsNull(FJSONObject.Values['Document_Number']);
+  Assert.IsNull(FJSONObject.Values['Average']);
+  Assert.IsNull(FJSONObject.Values['CreationDate']);
 end;
 
 procedure TGBJSONTestDeserializePerson.ObjectUnderlineProperty;
